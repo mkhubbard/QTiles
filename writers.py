@@ -46,6 +46,10 @@ class DirectoryWriter:
         QDir().mkpath(dirPath)
         image.save('%s/%s.%s' % (dirPath, tile.y, format.lower()), format, quality)
 
+    def exists(self, tile, format):
+        path = '%s/%s/%s/%s/%s.%s' % (self.output.absoluteFilePath(), self.rootDir, tile.z, tile.x, tile.y, format.lower())
+        return QFile(path).exists()
+
     def finalize(self):
         pass
 
@@ -69,6 +73,9 @@ class ZipWriter:
         tilePath = '%s/%s.%s' % (path, tile.y, format.lower())
         self.zipFile.write(str(self.tempFileName), str(tilePath).encode('utf8'))
 
+    def exists(self, tile, format):
+        return False
+
     def finalize(self):
         self.tempFile.close()
         self.tempFile.remove()
@@ -88,6 +95,9 @@ class NGMArchiveWriter(ZipWriter):
         level["y"].append(tile.y)
 
         self.levels[tile.z] = level
+
+    def exists(self, tile, format):
+        return False
 
     def finalize(self):
         archive_info = {
@@ -162,6 +172,9 @@ class MBTilesWriter:
 
         self.cursor.execute('''INSERT INTO tiles(zoom_level, tile_column, tile_row, tile_data) VALUES (?, ?, ?, ?);''', (tile.z, tile.x, tile.y, sqlite3.Binary(buff.data())))
         buff.close()
+
+    def exists(self, tile, format):
+        return False
 
     def finalize(self):
         optimize_database(self.connection)

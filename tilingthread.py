@@ -272,6 +272,9 @@ class TilingThread(QThread):
         # scale = self.scaleCalc.calculate(
         #    self.projector.transform(tile.toRectangle()), self.width)
 
+        if self.writer.exists(tile, self.format):
+            return
+
         self.settings.setExtent(self.projector.transformBoundingBox(tile.toRectangle()))
 
         image = QImage(self.settings.outputSize(), QImage.Format_ARGB32)
