@@ -28,9 +28,9 @@ import time
 import codecs
 import json
 from string import Template
-from qgis.PyQt.QtCore import *
-from qgis.PyQt.QtGui import *
-from qgis.core import *
+from qgis.PyQt.QtCore import QThread, pyqtSignal, QMutex, Qt
+from qgis.PyQt.QtGui import QImage, QColor, QPainter
+from qgis.core import QgsProject, QgsCoordinateTransform, QgsCoordinateReferenceSystem, QgsScaleCalculator, QgsMapSettings, QgsMapRendererCustomPainterJob
 from .tile import Tile
 from .writers import *
 from . import resources_rc
@@ -225,7 +225,7 @@ class TilingThread(QThread):
     def writeLeafletViewer(self):
         templateFile = QFile(':/resources/viewer.html')
         if templateFile.open(QIODevice.ReadOnly | QIODevice.Text):
-            viewer = MyTemplate(str(templateFile.readAll()))
+            viewer = MyTemplate(templateFile.readAll().data().decode('utf8'))
 
             tilesDir = '%s/%s' % (self.output.absoluteFilePath(), self.rootDir)
             useTMS = 'true' if self.tmsConvention else 'false'

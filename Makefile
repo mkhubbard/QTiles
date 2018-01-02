@@ -32,7 +32,7 @@ $(UI_FILES): $(UI_PATH)/ui_%.py: $(UI_PATH)/%.ui
 $(LANG_FILES): $(LANG_PATH)/%.qm: $(LANG_PATH)/%.ts
 	lrelease $<
 
-$(RES_FILES): $(RES_PATH)/%_rc.py: $(RES_PATH)/%.qrc
+$(RES_FILES): $(RES_PATH)/%_rc.py: $(RES_PATH)/%.qrc $(RES_PATH)/resources/viewer.html
 	pyrcc5 -o $@ $<
 
 pep8:

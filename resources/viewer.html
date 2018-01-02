@@ -6,8 +6,8 @@
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="css/leaflet.css" />
-  <link href="css/jquery-ui.min.css" rel="stylesheet" type="text/css"/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@@1.2.0/dist/leaflet.css" />
+  <link href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
   <style type="text/css">
     #basemapslidercontainer {
       position: absolute;
@@ -23,16 +23,18 @@
       width:7px;
     }
 
+    body, html {
+      height: 100%;
+      margin: 0px;
+    }
+
     #map{
-       left: 10px;
-       right: 10px;
-       top: 10px;
-       bottom: 10px;
+       height: 100%;
     }
   </style>
-  <script src="js/jquery.min.js"></script>
-  <script src="js/jquery-ui.min.js"></script>
-  <script src="js/leaflet.js"></script>
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+  <script src="https://unpkg.com/leaflet@@1.2.0/dist/leaflet.js"></script>
   <script>
     $(document).ready(function () {
       $("#basemapslider").slider({
@@ -57,7 +59,7 @@
 
       var map = L.map('map').setView([@centery, @centerx], @avgzoom);
       var baselayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 18,
+        maxZoom: @maxzoom,
         attribution: 'Map data &copy; <a href="https://openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       }).addTo(map);
 
