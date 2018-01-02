@@ -3,3 +3,7 @@
 *~
 *.diff
 *.log*
+i18n/qtiles_ru_RU.qm
+resources_rc.py
+ui/ui_aboutdialogbase.py
+ui/ui_qtilesdialogbase.py

@@ -28,12 +28,12 @@ import time
 import codecs
 import json
 from string import Template
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import *
 from qgis.core import *
-from tile import Tile
-from writers import *
-import resources_rc
+from .tile import Tile
+from .writers import *
+from . import resources_rc
 
 
 class TilingThread(QThread):
@@ -60,7 +60,7 @@ class TilingThread(QThread):
         if rootDir:
             self.rootDir = rootDir
         else:
-            self.rootDir = 'tileset_%s' % unicode(time.time()).split('.')[0]
+            self.rootDir = 'tileset_%s' % str(time.time()).split('.')[0]
         self.antialias = antialiasing
         self.tmsConvention = tmsConvention
         self.mbtilesCompression = mbtilesCompression
@@ -82,9 +82,6 @@ class TilingThread(QThread):
             self.tmsConvention = True
         self.interrupted = False
         self.tiles = []
-        self.layersId = []
-        for layer in self.layers:
-            self.layersId.append(layer.id())
         myRed = QgsProject.instance().readNumEntry('Gui', '/CanvasColorRedPart', 255)[0]
         myGreen = QgsProject.instance().readNumEntry('Gui', '/CanvasColorGreenPart', 255)[0]
         myBlue = QgsProject.instance().readNumEntry('Gui', '/CanvasColorBluePart', 255)[0]
@@ -96,13 +93,11 @@ class TilingThread(QThread):
         self.scaleCalc.setMapUnits(QgsCoordinateReferenceSystem('EPSG:3395').mapUnits())
         self.settings = QgsMapSettings()
         self.settings.setBackgroundColor(self.color)
-        self.settings.setCrsTransformEnabled(True)
         self.settings.setOutputDpi(image.logicalDpiX())
         self.settings.setOutputImageFormat(QImage.Format_ARGB32_Premultiplied)
         self.settings.setDestinationCrs(QgsCoordinateReferenceSystem('EPSG:3395'))
         self.settings.setOutputSize(image.size())
-        self.settings.setLayers(self.layersId)
-        self.settings.setMapUnits(QgsCoordinateReferenceSystem('EPSG:3395').mapUnits())
+        self.settings.setLayers(self.layers)
         if self.antialias:
             self.settings.setFlag(QgsMapSettings.Antialiasing, True)
         else:
@@ -230,7 +225,7 @@ class TilingThread(QThread):
     def writeLeafletViewer(self):
         templateFile = QFile(':/resources/viewer.html')
         if templateFile.open(QIODevice.ReadOnly | QIODevice.Text):
-            viewer = MyTemplate(unicode(templateFile.readAll()))
+            viewer = MyTemplate(str(templateFile.readAll()))
 
             tilesDir = '%s/%s' % (self.output.absoluteFilePath(), self.rootDir)
             useTMS = 'true' if self.tmsConvention else 'false'
@@ -262,8 +257,8 @@ class TilingThread(QThread):
             else:
                 self.tiles.append(tile)
         if tile.z < self.maxZoom:
-            for x in xrange(2 * tile.x, 2 * tile.x + 2, 1):
-                for y in xrange(2 * tile.y, 2 * tile.y + 2, 1):
+            for x in range(2 * tile.x, 2 * tile.x + 2, 1):
+                for y in range(2 * tile.y, 2 * tile.y + 2, 1):
                     self.mutex.lock()
                     s = self.stopMe
                     self.mutex.unlock()
@@ -277,7 +272,7 @@ class TilingThread(QThread):
         # scale = self.scaleCalc.calculate(
         #    self.projector.transform(tile.toRectangle()), self.width)
 
-        self.settings.setExtent(self.projector.transform(tile.toRectangle()))
+        self.settings.setExtent(self.projector.transformBoundingBox(tile.toRectangle()))
 
         image = QImage(self.settings.outputSize(), QImage.Format_ARGB32)
         image.fill(Qt.transparent)

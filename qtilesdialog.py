@@ -24,16 +24,18 @@
 # MA 02110-1335 USA.
 #
 #******************************************************************************
+import functools
 import os
 import locale
 import math
 import operator
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-from qgis.core import *
-import tilingthread
-from ui.ui_qtilesdialogbase import Ui_Dialog
-import qtiles_utils as utils
+from qgis.PyQt.QtCore import QSettings, pyqtSlot, Qt, QFileInfo, QDir
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QFileDialog, QMessageBox
+from qgis.core import QgsSettings, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsRectangle
+from . import tilingthread
+from .ui.ui_qtilesdialogbase import Ui_Dialog
+from . import qtiles_utils as utils
 
 
 class QTilesDialog(QDialog, Ui_Dialog):
@@ -64,7 +66,7 @@ class QTilesDialog(QDialog, Ui_Dialog):
             self.tr('ZIP archives (*.zip *.ZIP)'): '.zip',
             self.tr('MBTiles databases (*.mbtiles *.MBTILES)'): '.mbtiles'}
 
-        self.settings = QSettings('NextGIS', 'QTiles')
+        self.settings = QgsSettings('NextGIS', 'QTiles')
         self.grpParameters.setSettings(self.settings)
         self.btnClose = self.buttonBox.button(QDialogButtonBox.Close)
         self.rbExtentLayer.toggled.connect(self.__toggleLayerSelector)
@@ -121,13 +123,12 @@ class QTilesDialog(QDialog, Ui_Dialog):
 
     def manageGui(self):
         layers = utils.getMapLayers()
-        relations = self.iface.legendInterface().groupLayerRelationship()
-        for layer in sorted(layers.iteritems(), cmp=locale.strcoll, key=operator.itemgetter(1)):
-            groupName = utils.getLayerGroup(relations, layer[0])
-            if groupName == '':
-                self.cmbLayers.addItem(layer[1], layer[0])
+        for layer_id, layer_name in sorted(iter(layers.items()), key=functools.cmp_to_key(lambda x, y: locale.strcoll(x[1], y[1]))):
+            group_name = utils.getLayerGroup(layer_id)
+            if group_name == '':
+                self.cmbLayers.addItem(layer_name, layer_id)
             else:
-                self.cmbLayers.addItem('%s - %s' % (layer[1], groupName), layer[0])
+                self.cmbLayers.addItem('%s - %s' % (layer_name, group_name), layer_id)
 
         self.rbOutputZip.setChecked(self.settings.value('outputToZip', True, type=bool))
         self.rbOutputDir.setChecked(self.settings.value('outputToDir', False, type=bool))
@@ -234,8 +235,8 @@ class QTilesDialog(QDialog, Ui_Dialog):
             extent = canvas.fullExtent()
         else:
             layer = utils.getLayerById(self.cmbLayers.itemData(self.cmbLayers.currentIndex()))
-            extent = canvas.mapRenderer().layerExtentToOutputExtent(layer, layer.extent())
-        extent = QgsCoordinateTransform(canvas.mapRenderer().destinationCrs(), QgsCoordinateReferenceSystem('EPSG:4326')).transform(extent)
+            extent = canvas.mapSettings().layerExtentToOutputExtent(layer, layer.extent())
+        extent = QgsCoordinateTransform(canvas.mapSettings().destinationCrs(), QgsCoordinateReferenceSystem('EPSG:4326')).transformBoundingBox(extent)
         arctanSinhPi = math.degrees(math.atan(math.sinh(math.pi)))
         extent = extent.intersect(QgsRectangle(-180, -arctanSinhPi, 180, arctanSinhPi))
         layers = canvas.layers()
@@ -387,7 +388,7 @@ class QTilesDialog(QDialog, Ui_Dialog):
     def __select_output(self):
         if self.rbOutputZip.isChecked():
             file_directory = QFileInfo(self.settings.value('outputToZip_Path', '.')).absolutePath()
-            outPath, outFilter = QFileDialog.getSaveFileNameAndFilter(self, self.tr('Save to file'), file_directory, ';;'.join(self.FORMATS.iterkeys()), self.FORMATS.keys()[self.FORMATS.values().index('.zip')])
+            outPath, outFilter = QFileDialog.getSaveFileName(self, self.tr('Save to file'), file_directory, ';;'.join(iter(self.FORMATS.keys())), list(self.FORMATS.keys())[list(self.FORMATS.values()).index('.zip')])
             if not outPath:
                 return
             if not outPath.lower().endswith(self.FORMATS[outFilter]):

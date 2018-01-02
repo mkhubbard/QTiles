@@ -27,14 +27,15 @@
 
 
 import os
-import ConfigParser
+import configparser
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import QPixmap, QTextDocument, QDesktopServices
+from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox
 
-from ui.ui_aboutdialogbase import Ui_Dialog
+from .ui.ui_aboutdialogbase import Ui_Dialog
 
-import resources_rc
+from . import resources_rc
 
 
 class AboutDialog(QDialog, Ui_Dialog):
@@ -46,7 +47,7 @@ class AboutDialog(QDialog, Ui_Dialog):
 
         self.lblLogo.setPixmap(QPixmap(':/icons/qtiles.png'))
 
-        cfg = ConfigParser.SafeConfigParser()
+        cfg = configparser.SafeConfigParser()
         cfg.read(os.path.join(os.path.dirname(__file__), 'metadata.txt'))
         version = cfg.get('general', 'version')
 

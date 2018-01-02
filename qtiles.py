@@ -25,26 +25,27 @@
 #
 #******************************************************************************
 
+import os
 
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+from qgis.PyQt.QtCore import *
+from qgis.PyQt.QtGui import QIcon
+from qgis.PyQt.QtWidgets import QAction
 
-from qgis.core import *
+from qgis.core import Qgis, QgsApplication
 
-import qtilesdialog
-import aboutdialog
+from . import qtilesdialog
+from . import aboutdialog
 
-import resources_rc
+from . import resources_rc
 
 
 class QTilesPlugin:
     def __init__(self, iface):
         self.iface = iface
 
-        self.qgsVersion = unicode(QGis.QGIS_VERSION_INT)
+        self.qgsVersion = str(Qgis.QGIS_VERSION_INT)
 
-        userPluginPath = QFileInfo(QgsApplication.qgisUserDbFilePath()).path() + '/python/plugins/qtiles'
-        systemPluginPath = QgsApplication.prefixPath() + '/python/plugins/qtiles'
+        pluginPath = os.path.dirname(__file__)
 
         overrideLocale = QSettings().value('locale/overrideFlag', False, type=bool)
         if not overrideLocale:
@@ -52,10 +53,7 @@ class QTilesPlugin:
         else:
             localeFullName = QSettings().value('locale/userLocale', '')
 
-        if QFileInfo(userPluginPath).exists():
-            translationPath = userPluginPath + '/i18n/qtiles_' + localeFullName + '.qm'
-        else:
-            translationPath = systemPluginPath + '/i18n/qtiles_' + localeFullName + '.qm'
+        translationPath = pluginPath + '/i18n/qtiles_' + localeFullName + '.qm'
 
         self.localePath = translationPath
         if QFileInfo(self.localePath).exists():
