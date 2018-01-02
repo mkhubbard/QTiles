@@ -697,7 +697,7 @@
                </sizepolicy>
               </property>
               <property name="text">
-               <string>Background transparency</string>
+               <string>Background opacity</string>
               </property>
              </widget>
             </item>

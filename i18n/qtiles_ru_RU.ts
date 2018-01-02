@@ -216,7 +216,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <location filename="ui_qtilesdialogbase.py" line="350"/>
-        <source>Background transparency</source>
+        <source>Background opacity</source>
         <translation>Прозрачность фона</translation>
     </message>
     <message>
