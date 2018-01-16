@@ -87,7 +87,7 @@ class TilingThread(QThread):
         myBlue = QgsProject.instance().readNumEntry('Gui', '/CanvasColorBluePart', 255)[0]
         self.color = QColor(myRed, myGreen, myBlue, transp)
         image = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
-        self.projector = QgsCoordinateTransform(QgsCoordinateReferenceSystem('EPSG:4326'), QgsCoordinateReferenceSystem('EPSG:3395'))
+        self.projector = QgsCoordinateTransform(QgsCoordinateReferenceSystem('EPSG:4326'), QgsCoordinateReferenceSystem('EPSG:3395'), QgsProject.instance())
         self.scaleCalc = QgsScaleCalculator()
         self.scaleCalc.setDpi(image.logicalDpiX())
         self.scaleCalc.setMapUnits(QgsCoordinateReferenceSystem('EPSG:3395').mapUnits())

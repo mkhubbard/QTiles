@@ -32,7 +32,7 @@ import operator
 from qgis.PyQt.QtCore import QSettings, pyqtSlot, Qt, QFileInfo, QDir
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QDialog, QDialogButtonBox, QFileDialog, QMessageBox
-from qgis.core import QgsSettings, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsRectangle
+from qgis.core import QgsSettings, QgsCoordinateReferenceSystem, QgsCoordinateTransform, QgsRectangle, QgsProject
 from . import tilingthread
 from .ui.ui_qtilesdialogbase import Ui_Dialog
 from . import qtiles_utils as utils
@@ -236,7 +236,7 @@ class QTilesDialog(QDialog, Ui_Dialog):
         else:
             layer = utils.getLayerById(self.cmbLayers.itemData(self.cmbLayers.currentIndex()))
             extent = canvas.mapSettings().layerExtentToOutputExtent(layer, layer.extent())
-        extent = QgsCoordinateTransform(canvas.mapSettings().destinationCrs(), QgsCoordinateReferenceSystem('EPSG:4326')).transformBoundingBox(extent)
+        extent = QgsCoordinateTransform(canvas.mapSettings().destinationCrs(), QgsCoordinateReferenceSystem('EPSG:4326'), QgsProject.instance()).transformBoundingBox(extent)
         arctanSinhPi = math.degrees(math.atan(math.sinh(math.pi)))
         extent = extent.intersect(QgsRectangle(-180, -arctanSinhPi, 180, arctanSinhPi))
         layers = canvas.layers()

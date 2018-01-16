@@ -3,8 +3,7 @@ name=QTiles
 description=Generate tiles from QGIS project
 category=Plugins
 version=1.5.2
-qgisMinimumVersion=2.99
-qgisMaximumVersion=2.99
+qgisMinimumVersion=3.0
 
 author=NextGIS
 email=info@nextgis.com
